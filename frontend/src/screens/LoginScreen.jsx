@@ -1,18 +1,39 @@
-import { useState } from 'react'
-import React from 'react'
+import { useState, useEffect } from 'react'
 import { Form,Button, Row, Col } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate} from 'react-router-dom'
 import FormContainer from '../components/FormContainer'
+import {useDispatch,useSelector} from 'react-redux'
+import { useLoginMutation } from '../slices/usersApiSlice'
+import { setCredentials } from '../slices/authSlice'
+import { toast } from 'react-toastify'
+import Loader from '../components/loader'
 
-
-
+toast
 const LoginScreen = () => {
     const [email,setEmail] = useState('');
     const [password,setPassword] = useState('');
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
+
+    const [login,{isLoading}] = useLoginMutation();
+    const {userInfo} = useSelector((state)=>state.auth)
+
+    useEffect(()=>{
+        if(userInfo){
+            navigate('/')
+        }
+    },[navigate,userInfo])
 
     const submitHandler = async(e)=>{
-        // e.preventDefault()
-        alert('submit');
+        e.preventDefault()
+     try {
+        const res = await login({email,password}).unwrap()
+        console.log(res)
+        dispatch(setCredentials({...res}))
+        navigate('/')
+     } catch (err) {
+        toast.error(err?.data?.message || err.error)
+     }
     }
   return (
     <>
@@ -38,8 +59,10 @@ const LoginScreen = () => {
                  ></Form.Control>
             </Form.Group>
 
-
-            <Button type='submit' variant='primary' className='my-3'>Login</Button>
+               
+            <Button type='submit' variant='primary' className='my-3'><span>{isLoading && <>
+                <Loader />
+                </>}</span> Login</Button>
             <Row className="py-3">
                 <Col>
                 New User ? <Link to='/register'>Sign up</Link>
