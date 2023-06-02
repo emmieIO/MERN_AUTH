@@ -12,6 +12,7 @@ toast
 const LoginScreen = () => {
     const [email,setEmail] = useState('');
     const [password,setPassword] = useState('');
+    // const [confirmPassword,setConfirmPassword] = useState('');
     const navigate = useNavigate()
     const dispatch = useDispatch()
 
@@ -28,7 +29,6 @@ const LoginScreen = () => {
         e.preventDefault()
      try {
         const res = await login({email,password}).unwrap()
-        console.log(res)
         dispatch(setCredentials({...res}))
         navigate('/')
      } catch (err) {

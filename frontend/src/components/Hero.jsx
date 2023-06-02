@@ -1,6 +1,23 @@
 import { Container, Card, Button } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
+import { useSelector,useDispatch } from 'react-redux';
+import { logout } from '../slices/authSlice';
+import { useLogoutMutation } from '../slices/usersApiSlice';
+import { useNavigate } from 'react-router-dom';
 const Hero = () => {
+  const {userInfo} = useSelector((state)=>state.auth)
+  const [logOutApiCall] = useLogoutMutation()
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const logoutHandler = async ()=>{
+    try {
+      await logOutApiCall().unwrap()
+    dispatch(logout());
+    navigate('/')
+    } catch (error) {
+      console.log(error)
+    }
+  }
   return (
     <div className=' py-5'>
       <Container className='d-flex justify-content-center'>
@@ -12,16 +29,30 @@ const Hero = () => {
             Bootstrap library
           </p>
           <div className='d-flex'>
+            {userInfo ? (
+              <>
+           
+              <Button variant='danger' onClick={logoutHandler}>
+                Logout
+              </Button>
+              
+              </>
+
+            ):(
+            <>
             <LinkContainer to="/login">
-            <Button variant='primary'  className='me-3'>
-              Sign In
-            </Button>
-            </LinkContainer>
-            <LinkContainer to="/register">
-            <Button variant='secondary' href='/register'>
-              Register
-            </Button>
-            </LinkContainer>
+              <Button variant='primary'  className='me-3'>
+                Sign In
+              </Button>
+              </LinkContainer>
+              <LinkContainer to="/register">
+              <Button variant='secondary' href='/register'>
+                Register
+              </Button>
+              </LinkContainer>
+            </>
+            )}
+            
           </div>
         </Card>
       </Container>
